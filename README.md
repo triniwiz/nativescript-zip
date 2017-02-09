@@ -13,5 +13,5 @@ Zip.unzip(zipPath,dest);
 ```
 
 #TODO
-* Zip method
+* Compress method
 * Progress
