@@ -1,6 +1,6 @@
 {
   "name": "nativescript-zip",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "zip",
   "typings": "index.d.ts",
