@@ -1,1 +1,1 @@
-export * from "./zip.android";
+export * from "./zip.ios";
