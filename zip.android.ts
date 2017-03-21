@@ -1,3 +1,8 @@
+// zip4j docs:
+// http://javadox.com/net.lingala.zip4j/zip4j/1.3.1/net/lingala/zip4j
+// progress example:
+// http://www.lingala.net/zip4j/forum/index.php?topic=68.0
+
 const ProgressMonitor = net.lingala.zip4j.progress.ProgressMonitor;
 
 export class Zip {
