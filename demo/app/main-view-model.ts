@@ -1,8 +1,8 @@
 import {Observable} from 'data/observable';
-import {Zip} from 'nativescript-zip';
 
 export class HelloWorldModel extends Observable {
-  public message: string;
+  public message: string = 'Demo';
+  public progress: number = 0;
   constructor() {
     super();
   }
