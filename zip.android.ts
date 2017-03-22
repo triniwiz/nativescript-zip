@@ -1,18 +1,22 @@
+import * as fs from 'file-system';
+
 // zip4j docs:
 // http://javadox.com/net.lingala.zip4j/zip4j/1.3.1/net/lingala/zip4j
 // progress example:
 // http://www.lingala.net/zip4j/forum/index.php?topic=68.0
-
 const ProgressMonitor = net.lingala.zip4j.progress.ProgressMonitor;
 
 export class Zip {
-  
+
   public static ProgressUpdateRate = 100;
 
   public static zip() {
   }
 
   public static unzipWithProgress(archive: string, destination: string, progressCallback: (progressPercent) => void, overwrite?: boolean, password?: string): Promise<any> {
+    if (!fs.File.exists(archive)) {
+      return Promise.reject(`File does not exist, invalid archive path: ${archive}`);
+    }
     return new Promise((resolve, reject) => {
       try {
         const zipFile = new net.lingala.zip4j.core.ZipFile(archive);
@@ -39,7 +43,6 @@ export class Zip {
           }
         }, Zip.ProgressUpdateRate);
       } catch (ex) {
-        console.log(ex);
         reject(ex);
       }
     });
