@@ -1,16 +1,6 @@
 import * as fs from 'file-system';
 
-// Undocumented but reliable way to call native iOS APIs asynchronously
-// See: https://github.com/NativeScript/NativeScript/issues/1673#issuecomment-190658780
-// Note: Type marshalling does not seem to work with .async, need to create native args (like NSString & ZipDelegate).
-declare interface TNSAsync {
-  async(nativeClass: any, args: any | any[]): Promise<any>;
-}
-function doOnMainThread(func: any) {
-  Promise.resolve().then(() => {
-    func();
-  });
-}
+declare var Worker: any;
 
 export class Zip {
 
@@ -23,28 +13,22 @@ export class Zip {
         return reject(`File does not exist, invalid archive path: ${archive}`);
       }
 
-      overwrite = overwrite !== undefined ? overwrite : true;
-      const archiveNSString = NSString.stringWithString(archive);
-      const destinationNSString = NSString.stringWithString(destination);
-      const passwordNSString = password !== undefined ? NSString.stringWithString(password) : null;
-
-      try {
-        const nsErr = NSError.alloc().initWithDomainCodeUserInfo('TNSZip', 1, null);
-        const zipArchiveDelegate = TNSZipArchiveDelegate.initWithProgressCallback(progressCallback);
-
-        (<TNSAsync><any>SSZipArchive.unzipFileAtPathToDestinationOverwritePasswordErrorDelegate).async(SSZipArchive,
-          [archiveNSString, destinationNSString, overwrite, passwordNSString, nsErr, zipArchiveDelegate]
-        ).then((succeeded) => {
-          if (succeeded) {
-            resolve();
-          } else {
-            reject(nsErr.localizedDescription);
-          }
-        });
-      }
-      catch (err) {
-        reject(err);
-      }
+      var worker = new Worker('./zip-worker-ios');
+      worker.postMessage({ action: 'unzip', archive, destination, overwrite, password });
+      worker.onmessage = (msg) => {
+        // console.log(`Received worker callback: ${JSON.stringify(msg)}`);
+        if (msg.data.progress) {
+          progressCallback(msg.data.progress);
+        } else if (msg.data.result === true) {
+          resolve();
+        } else {
+          reject('zip-worker-ios failed');
+        }
+      };
+      worker.onerror = (err) => {
+        console.log(`An unhandled error occurred in worker: ${err.filename}, line: ${err.lineno}`);
+        reject(err.message);
+      };
     });
   }
 
@@ -62,40 +46,4 @@ export class Zip {
       console.log("done")
     }
   }
-}
-
-
-export class TNSZipArchiveDelegate extends NSObject implements SSZipArchiveDelegate {
-
-  public static ObjCProtocols = [SSZipArchiveDelegate];
-
-  private progressCallback;
-  private lastProgressPercent = 0;
-
-  public static initWithProgressCallback(progressCallback: (progressPercent) => void) {
-    const self = new TNSZipArchiveDelegate();
-    self.progressCallback = progressCallback;
-    return self;
-  }
-
-  zipArchiveProgressEventTotal(loaded: number, total: number) {
-    // console.log(`TNSZipDelegate.progress ${loaded} / ${total}`);
-    if (this.progressCallback && total > 0) {
-      // Throttle progress callbacks somewhat
-      const percent = Math.floor(loaded / total * 100);
-      if (percent != this.lastProgressPercent) {
-        this.lastProgressPercent = percent;
-        doOnMainThread(() => {
-          this.progressCallback(percent);
-        });
-      }
-    }
-  }
-  // zipArchiveDidUnzipArchiveAtPathZipInfoUnzippedPath?(path: string, zipInfo: unz_global_info, unzippedPath: string);
-  // zipArchiveDidUnzipArchiveFileEntryPathDestPath(zipFile: string, entryPath: string, destPath: string): void;
-  // zipArchiveDidUnzipFileAtIndexTotalFilesArchivePathFileInfo(fileIndex: number, totalFiles: number, archivePath: string, fileInfo: unz_file_info): void;
-  // zipArchiveDidUnzipFileAtIndexTotalFilesArchivePathUnzippedFilePath(fileIndex: number, totalFiles: number, archivePath: string, unzippedFilePath: string): void;
-  // zipArchiveShouldUnzipFileAtIndexTotalFilesArchivePathFileInfo(fileIndex: number, totalFiles: number, archivePath: string, fileInfo: unz_file_info): boolean;
-  // zipArchiveWillUnzipArchiveAtPathZipInfo(path: string, zipInfo: unz_global_info): void;
-  // zipArchiveWillUnzipFileAtIndexTotalFilesArchivePathFileInfo(fileIndex: number, totalFiles: number, archivePath: string, fileInfo: unz_file_info): void;
 }
