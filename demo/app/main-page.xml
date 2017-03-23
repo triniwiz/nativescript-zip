@@ -1,5 +1,8 @@
 <Page xmlns="http://schemas.nativescript.org/tns.xsd" loaded="pageLoaded">
   <StackLayout>
     <Label text="{{ message }}" class="message" textWrap="true"/>
+    <Button text="Unzip!" tap="unzip" />
+    <Button text="Print Files" tap="showFiles" />
+    <Progress value="{{ progress }}" />
   </StackLayout>
 </Page>

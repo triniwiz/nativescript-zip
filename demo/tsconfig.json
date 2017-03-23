@@ -4,13 +4,10 @@
         "module": "commonjs",
         "declaration": false,
         "removeComments": true,
-        "noLib": false,
+        "noLib": true,
+        "skipLibCheck": true,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
-        "lib": [
-            "dom"
-        ],
-        "sourceMap": true,
         "pretty": true,
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
@@ -19,12 +16,7 @@
         "noImplicitAny": false,
         "noImplicitReturns": true,
         "noImplicitUseStrict": false,
-        "noFallthroughCasesInSwitch": true,
-        "typeRoots": [
-            "./node_modules/@types",
-            "./node_modules"
-        ],
-        "types": []
+        "noFallthroughCasesInSwitch": true
     },
     "exclude": [
         "node_modules",
