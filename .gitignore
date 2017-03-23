@@ -11,3 +11,6 @@ demo/node_modules
 node_modules
 .vscode
 .idea
+*.d.ts
+!zip4j.d.ts
+!objc!SSZipArchive.d.ts
