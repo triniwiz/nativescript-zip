@@ -1,9 +1,9 @@
-#NativeScript Zip
+# NativeScript Zip
 
-##Installation
+## Installation
 `tns plugin add nativescript-zip`
 
-##Usage
+## Usage
 ```ts
 import {Zip} from "nativescript-zip";
 import * fs from "file-system";
@@ -12,6 +12,6 @@ let dest = fs.path.join(fs.knownFolders.currentApp().path, "/assets");
 Zip.unzip(zipPath,dest);
 ```
 
-#TODO
+# TODO
 * Compress method
 * Progress
