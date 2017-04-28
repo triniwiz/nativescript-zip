@@ -12,7 +12,7 @@ let zipPath = fs.path.join(fs.knownFolders.temp().path, "stuff.zip");
 let dest = fs.path.join(fs.knownFolders.currentApp().path, "/assets");
 Zip.unzip(zipPath,dest);
 ```
-###Progress
+### Progress
 ```ts
 import {Zip} from "nativescript-zip";
 import * fs from "file-system";
@@ -27,5 +27,5 @@ function onZipProgress(percent: number) {
 
 
 # TODO
-- [] Compress method
+- [ ] Compress method
 - [x] Progress
