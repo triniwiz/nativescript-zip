@@ -19,7 +19,7 @@ onmessage = (msg) => {
 
 onerror = (err) => {
   debug(`ZipWorker.Error: ${err}`);
-  postMessage({ result: false });
+  postMessage({ result: false, err });
   close();
 }
 
@@ -50,7 +50,7 @@ function onUnzipCompletion(path, succeeded, err) {
   if (succeeded) {
     postMessage({ result: true });
   } else {
-    postMessage({ result: false, err: err ? err.localizedDescription : 'error' });
+    postMessage({ result: false, err: err ? err.localizedDescription : 'Unknown error' });
   }
   close();
 }

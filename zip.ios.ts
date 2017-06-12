@@ -20,8 +20,12 @@ export class Zip {
                 // console.log(`Received worker callback: ${JSON.stringify(msg)}`);
                 if (msg.data.progress != undefined) {
                     progressCallback(msg.data.progress);
-                } else if (msg.data.result === true) {
-                    resolve();
+                } else if (msg.data.result != undefined) {
+                    if (msg.data.result) {
+                        resolve();
+                    } else {
+                        reject(msg.data.err);
+                    }
                 } else {
                     reject('zip-worker-ios failed');
                 }
