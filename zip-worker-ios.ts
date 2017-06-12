@@ -19,11 +19,11 @@ onmessage = (msg) => {
 
 onerror = (err) => {
   debug(`ZipWorker.Error: ${err}`);
-  postMessage({ result: false });
+  postMessage({ result: false, err });
   close();
 }
 
-function unzipRequest(request) {
+function unzipRequest(request: ZipRequest) {
   var archivePath = request.archive;
   var destinationPath = request.destination;
   var overwrite = request.overwrite || true;
@@ -50,7 +50,7 @@ function onUnzipCompletion(path, succeeded, err) {
   if (succeeded) {
     postMessage({ result: true });
   } else {
-    postMessage({ result: false, err: err ? err.localizedDescription : 'error' });
+    postMessage({ result: false, err: err ? err.localizedDescription : 'Unknown error' });
   }
   close();
 }
