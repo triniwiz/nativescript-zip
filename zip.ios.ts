@@ -1,7 +1,5 @@
 import * as fs from 'file-system';
 
-declare var Worker: any;
-
 export class Zip {
 
     public static zip() {
@@ -15,7 +13,7 @@ export class Zip {
             }
 
             var worker = new Worker('./zip-worker-ios');
-            worker.postMessage({action: 'unzip', archive, destination, overwrite, password});
+            worker.postMessage(<ZipRequest>{ action: 'unzip', archive, destination, overwrite, password });
             worker.onmessage = (msg) => {
                 // console.log(`Received worker callback: ${JSON.stringify(msg)}`);
                 if (msg.data.progress != undefined) {

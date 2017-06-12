@@ -23,7 +23,7 @@ onerror = (err) => {
   close();
 }
 
-function unzipRequest(request) {
+function unzipRequest(request: ZipRequest) {
   var archivePath = request.archive;
   var destinationPath = request.destination;
   var overwrite = request.overwrite || true;
