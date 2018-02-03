@@ -1,4 +1,4 @@
-import * as fs from 'file-system';
+import * as fs from 'tns-core-modules/file-system';
 
 export class Zip {
   public static zip(folder, destination, keepParent, password) {
@@ -21,9 +21,9 @@ export class Zip {
       if (!fs.Folder.exists(folder)) {
         return reject('Folder does not exist, invalid folder path: ' + folder);
       }
-      var worker;
+      let worker;
       if (global['TNS_WEBPACK']) {
-        var WorkerScript = require('nativescript-worker-loader!./zip-worker-ios');
+        const WorkerScript = require('nativescript-worker-loader!./zip-worker-ios');
         worker = new WorkerScript();
       } else {
         worker = new Worker('./zip-worker-ios');
@@ -36,9 +36,9 @@ export class Zip {
         password: password
       });
       worker.onmessage = function(msg) {
-        if (msg.data.progress != undefined) {
+        if (msg.data.progress !== undefined) {
           progressCallback(msg.data.progress);
-        } else if (msg.data.result != undefined) {
+        } else if (msg.data.result !== undefined) {
           if (msg.data.result) {
             resolve();
           } else {
@@ -88,9 +88,9 @@ export class Zip {
       });
       worker.onmessage = msg => {
         // console.log(`Received worker callback: ${JSON.stringify(msg)}`);
-        if (msg.data.progress != undefined) {
+        if (msg.data.progress !== undefined) {
           progressCallback(msg.data.progress);
-        } else if (msg.data.result != undefined) {
+        } else if (msg.data.result !== undefined) {
           if (msg.data.result) {
             resolve();
           } else {

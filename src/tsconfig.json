@@ -4,10 +4,10 @@
         "module": "commonjs",
         "declaration": true,
         "removeComments": true,
-        "noLib": true,
-        "skipLibCheck": true,
+        "noLib": false,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
+        "lib": ["es6", "dom"],
         "sourceMap": true,
         "pretty": true,
         "allowUnreachableCode": false,
@@ -20,7 +20,6 @@
         "noFallthroughCasesInSwitch": true
     },
     "exclude": [
-        "demo",
         "node_modules"
     ],
     "compileOnSave": false

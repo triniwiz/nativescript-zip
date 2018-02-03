@@ -1,4 +1,4 @@
-import * as fs from 'file-system';
+import* as fs from 'tns-core-modules/file-system';
 
 // zip4j docs:
 // http://javadox.com/net.lingala.zip4j/zip4j/1.3.1/net/lingala/zip4j
@@ -32,16 +32,15 @@ export class Zip {
       }
       try {
         if (fs.File.exists(destination)) {
-          var f = fs.File.fromPath(destination);
+          const f = fs.File.fromPath(destination);
           f.remove().then(
             function(result) {
-              var fs = require('file-system');
-              var temp = fs.knownFolders.temp();
-              var tempDestinationPath = fs.path.join(temp.path, 'archive.zip');
-              var zipFile = new net.lingala.zip4j.core.ZipFile(
+              const temp = fs.knownFolders.temp();
+              const tempDestinationPath = fs.path.join(temp.path, 'archive.zip');
+              const zipFile = new net.lingala.zip4j.core.ZipFile(
                 tempDestinationPath
               );
-              var parameters = new net.lingala.zip4j.model.ZipParameters();
+              const parameters = new net.lingala.zip4j.model.ZipParameters();
               parameters.setCompressionMethod(
                 net.lingala.zip4j.util.Zip4jConstants.COMP_DEFLATE
               );
@@ -49,18 +48,18 @@ export class Zip {
                 net.lingala.zip4j.util.Zip4jConstants.DEFLATE_LEVEL_NORMAL
               );
               zipFile.createZipFileFromFolder(folder, parameters, false, 0);
-              var monitor_1 = zipFile.getProgressMonitor();
-              var progressInterval_1 = setInterval(function() {
+              const monitor_1 = zipFile.getProgressMonitor();
+              const progressInterval_1 = setInterval(function() {
                 if (monitor_1.getState() === ProgressMonitor.STATE_BUSY) {
                   if (progressCallback)
                     progressCallback(monitor_1.getPercentDone());
                 } else {
-                  var result = monitor_1.getResult();
+                  const result = monitor_1.getResult();
                   if (result === ProgressMonitor.RESULT_SUCCESS) {
-                    var sourceFile = fs.File.fromPath(tempDestinationPath);
-                    var destinationFile = fs.File.fromPath(destination);
+                    const sourceFile = fs.File.fromPath(tempDestinationPath);
+                    const destinationFile = fs.File.fromPath(destination);
 
-                    var source = sourceFile.readSync(function(error) {
+                    const source = sourceFile.readSync(function(error) {
                       reject('error');
                     });
                     destinationFile.writeSync(source, function(error) {
@@ -86,8 +85,8 @@ export class Zip {
             }
           );
         } else {
-          var zipFile = new net.lingala.zip4j.core.ZipFile(destination);
-          var parameters = new net.lingala.zip4j.model.ZipParameters();
+          const zipFile = new net.lingala.zip4j.core.ZipFile(destination);
+          const parameters = new net.lingala.zip4j.model.ZipParameters();
           parameters.setCompressionMethod(
             net.lingala.zip4j.util.Zip4jConstants.COMP_DEFLATE
           );
