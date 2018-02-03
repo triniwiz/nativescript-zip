@@ -13,3 +13,4 @@ node_modules
 .idea
 *.d.ts
 !definitions/*.d.ts
+*.DS_Store

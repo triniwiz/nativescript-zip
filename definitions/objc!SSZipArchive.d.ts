@@ -7,15 +7,17 @@ declare class SSZipArchive extends NSObject {
 
 	static createZipFileAtPathWithContentsOfDirectoryKeepParentDirectory(path: string, directoryPath: string, keepParentDirectory: boolean): boolean;
 
+	static createZipFileAtPathWithContentsOfDirectoryKeepParentDirectoryCompressionLevelPasswordAESProgressHandler(path: string, directoryPath: string, keepParentDirectory: boolean, compressionLevel: number, password: string, aes: boolean, progressHandler: (p1: number, p2: number) => void): boolean;
+
 	static createZipFileAtPathWithContentsOfDirectoryKeepParentDirectoryWithPassword(path: string, directoryPath: string, keepParentDirectory: boolean, password: string): boolean;
 
 	static createZipFileAtPathWithContentsOfDirectoryKeepParentDirectoryWithPasswordAndProgressHandler(path: string, directoryPath: string, keepParentDirectory: boolean, password: string, progressHandler: (p1: number, p2: number) => void): boolean;
 
 	static createZipFileAtPathWithContentsOfDirectoryWithPassword(path: string, directoryPath: string, password: string): boolean;
 
-	static createZipFileAtPathWithFilesAtPaths(path: string, paths: NSArray<any>): boolean;
+	static createZipFileAtPathWithFilesAtPaths(path: string, paths: NSArray<string>): boolean;
 
-	static createZipFileAtPathWithFilesAtPathsWithPassword(path: string, paths: NSArray<any>, password: string): boolean;
+	static createZipFileAtPathWithFilesAtPathsWithPassword(path: string, paths: NSArray<string>, password: string): boolean;
 
 	static isFilePasswordProtectedAtPath(path: string): boolean;
 
@@ -33,19 +35,25 @@ declare class SSZipArchive extends NSObject {
 
 	static unzipFileAtPathToDestinationOverwritePasswordProgressHandlerCompletionHandler(path: string, destination: string, overwrite: boolean, password: string, progressHandler: (p1: string, p2: unz_file_info, p3: number, p4: number) => void, completionHandler: (p1: string, p2: boolean, p3: NSError) => void): boolean;
 
+	static unzipFileAtPathToDestinationPreserveAttributesOverwriteNestedZipLevelPasswordErrorDelegateProgressHandlerCompletionHandler(path: string, destination: string, preserveAttributes: boolean, overwrite: boolean, nestedZipLevel: number, password: string, error: interop.Pointer | interop.Reference<NSError>, delegate: SSZipArchiveDelegate, progressHandler: (p1: string, p2: unz_file_info, p3: number, p4: number) => void, completionHandler: (p1: string, p2: boolean, p3: NSError) => void): boolean;
+
 	static unzipFileAtPathToDestinationPreserveAttributesOverwritePasswordErrorDelegate(path: string, destination: string, preserveAttributes: boolean, overwrite: boolean, password: string, error: interop.Pointer | interop.Reference<NSError>, delegate: SSZipArchiveDelegate): boolean;
 
 	static unzipFileAtPathToDestinationProgressHandlerCompletionHandler(path: string, destination: string, progressHandler: (p1: string, p2: unz_file_info, p3: number, p4: number) => void, completionHandler: (p1: string, p2: boolean, p3: NSError) => void): boolean;
 
-	readonly close: boolean;
-
-	readonly open: boolean;
-
 	constructor(o: { path: string; });
+
+	close(): boolean;
 
 	initWithPath(path: string): this;
 
+	open(): boolean;
+
+	writeDataFilenameCompressionLevelPasswordAES(data: NSData, filename: string, compressionLevel: number, password: string, aes: boolean): boolean;
+
 	writeDataFilenameWithPassword(data: NSData, filename: string, password: string): boolean;
+
+	writeFileAtPathWithFileNameCompressionLevelPasswordAES(path: string, fileName: string, compressionLevel: number, password: string, aes: boolean): boolean;
 
 	writeFileAtPathWithFileNameWithPassword(path: string, fileName: string, password: string): boolean;
 
@@ -57,8 +65,6 @@ declare class SSZipArchive extends NSObject {
 interface SSZipArchiveDelegate extends NSObjectProtocol {
 
 	zipArchiveDidUnzipArchiveAtPathZipInfoUnzippedPath?(path: string, zipInfo: unz_global_info, unzippedPath: string): void;
-
-	zipArchiveDidUnzipArchiveFileEntryPathDestPath?(zipFile: string, entryPath: string, destPath: string): void;
 
 	zipArchiveDidUnzipFileAtIndexTotalFilesArchivePathFileInfo?(fileIndex: number, totalFiles: number, archivePath: string, fileInfo: unz_file_info): void;
 
@@ -77,6 +83,23 @@ declare var SSZipArchiveDelegate: {
 	prototype: SSZipArchiveDelegate;
 };
 
+declare const enum SSZipArchiveErrorCode {
+
+	FailedOpenZipFile = -1,
+
+	FailedOpenFileInZip = -2,
+
+	FileInfoNotLoadable = -3,
+
+	FileContentNotReadable = -4,
+
+	FailedToWriteFile = -5,
+
+	InvalidArguments = -6
+}
+
+declare var SSZipArchiveErrorDomain: string;
+
 declare var SSZipArchiveVersionNumber: number;
 
 declare var SSZipArchiveVersionString: interop.Reference<number>;
@@ -85,22 +108,12 @@ declare var ZipArchiveVersionNumber: number;
 
 declare var ZipArchiveVersionString: interop.Reference<number>;
 
-interface tm_unz {
-	tm_sec: number;
-	tm_min: number;
-	tm_hour: number;
-	tm_mday: number;
-	tm_mon: number;
-	tm_year: number;
-}
-declare var tm_unz: interop.StructType<tm_unz>;
-
 interface unz_file_info {
 	version: number;
 	version_needed: number;
 	flag: number;
 	compression_method: number;
-	dosDate: number;
+	dos_date: number;
 	crc: number;
 	compressed_size: number;
 	uncompressed_size: number;
@@ -110,7 +123,7 @@ interface unz_file_info {
 	disk_num_start: number;
 	internal_fa: number;
 	external_fa: number;
-	tmu_date: tm_unz;
+	disk_offset: number;
 }
 declare var unz_file_info: interop.StructType<unz_file_info>;
 
@@ -119,7 +132,7 @@ interface unz_file_info64 {
 	version_needed: number;
 	flag: number;
 	compression_method: number;
-	dosDate: number;
+	dos_date: number;
 	crc: number;
 	compressed_size: number;
 	uncompressed_size: number;
@@ -129,7 +142,6 @@ interface unz_file_info64 {
 	disk_num_start: number;
 	internal_fa: number;
 	external_fa: number;
-	tmu_date: tm_unz;
 	disk_offset: number;
 	size_file_extra_internal: number;
 }

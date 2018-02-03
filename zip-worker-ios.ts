@@ -1,10 +1,8 @@
-// require('globals'); // necessary to bootstrap tns modules on the new thread
-
 declare var onmessage: any;
 declare var onerror: any;
 declare function postMessage(msg: any);
 declare function close();
-
+declare const Math;
 var lastProgressPercent;
 var debugEnabled = true;
 
@@ -58,5 +56,81 @@ function onUnzipCompletion(path, succeeded, err) {
 function debug(arg) {
   if (debugEnabled && console && console.log) {
     console.log(arg);
+  }
+}
+function zipRequest(request) {
+  var folderPath = request.folder;
+  var destinationPath = request.destination;
+  var keepParent = request.keepParent || true;
+  var password = request.password || null;
+  debug(
+    'ZipWorker.zip - folder=' +
+      folderPath +
+      '\n' +
+      'ZipWorker.zip - destinationPath=' +
+      destinationPath
+  );
+  var fs = require('file-system');
+  var temp = fs.knownFolders.temp();
+  var tempDestinationPath = temp.getFile('archive.zip');
+  debug('ZipWorker.zip - tempFolder= ' + tempDestinationPath.path);
+  var result = SSZipArchive.createZipFileAtPathWithContentsOfDirectoryKeepParentDirectoryCompressionLevelPasswordAESProgressHandler(
+    tempDestinationPath.path,
+    folderPath,
+    keepParent,
+    -1,
+    password,
+    true,
+    onZipProgress
+  );
+  debug('ZipWorker.zip - after create in temp folder with result=' + result);
+  if (!result) {
+    postMessage({ result: false, err: 'Error creating zip file.' });
+    close();
+  } else {
+    var sourceFile = fs.File.fromPath(tempDestinationPath.path);
+    var destinationFile = fs.File.fromPath(destinationPath);
+
+    var source = sourceFile.readSync(function(error) {
+      postMessage({ result: false, err: 'Error creating zip file.' });
+      temp.clear().then(
+        function() {
+          close();
+        },
+        function(error) {
+          close();
+        }
+      );
+    });
+    destinationFile.writeSync(source, function(error) {
+      postMessage({ result: false, err: 'Error creating zip file.' });
+      temp.clear().then(
+        function() {
+          close();
+        },
+        function(error) {
+          close();
+        }
+      );
+    });
+    postMessage({ result: true });
+    temp.clear().then(
+      function() {
+        close();
+      },
+      function(error) {
+        close();
+      }
+    );
+  }
+}
+function onZipProgress(entryNumber, entriesTotal) {
+  if (entriesTotal > 0) {
+    var percent = Math.floor(entryNumber / entriesTotal * 100);
+    debug('ZipWorker.zip - zipProgress= ' + percent);
+    if (percent != lastProgressPercent) {
+      lastProgressPercent = percent;
+      postMessage({ progress: percent });
+    }
   }
 }

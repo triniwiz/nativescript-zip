@@ -9,8 +9,8 @@
     }
   },
   "dependencies": {
-    "nativescript-zip": "file:..",
     "nativescript-unit-test-runner": "^0.3.4",
+    "nativescript-zip": "file:..",
     "tns-core-modules": "^2.5.2"
   },
   "devDependencies": {
