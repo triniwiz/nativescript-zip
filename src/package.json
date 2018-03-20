@@ -1,6 +1,6 @@
 {
     "name": "nativescript-zip",
-    "version": "2.0.3",
+    "version": "2.0.4",
     "description": "A simple utility class for zipping and unzipping files in NativeScript",
     "main": "zip",
     "typings": "index.d.ts",
