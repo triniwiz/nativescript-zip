@@ -4,7 +4,7 @@ import* as fs from 'tns-core-modules/file-system';
 // http://javadox.com/net.lingala.zip4j/zip4j/1.3.1/net/lingala/zip4j
 // progress example:
 // http://www.lingala.net/zip4j/forum/index.php?topic=68.0
-const ProgressMonitor = net.lingala.zip4j.progress.ProgressMonitor;
+
 declare const net;
 export class Zip {
   public static ProgressUpdateRate = 100;
@@ -50,12 +50,12 @@ export class Zip {
               zipFile.createZipFileFromFolder(folder, parameters, false, 0);
               const monitor_1 = zipFile.getProgressMonitor();
               const progressInterval_1 = setInterval(function() {
-                if (monitor_1.getState() === ProgressMonitor.STATE_BUSY) {
+                if (monitor_1.getState() === net.lingala.zip4j.progress.ProgressMonitor.STATE_BUSY) {
                   if (progressCallback)
                     progressCallback(monitor_1.getPercentDone());
                 } else {
                   const result = monitor_1.getResult();
-                  if (result === ProgressMonitor.RESULT_SUCCESS) {
+                  if (result === net.lingala.zip4j.progress.ProgressMonitor.RESULT_SUCCESS) {
                     const sourceFile = fs.File.fromPath(tempDestinationPath);
                     const destinationFile = fs.File.fromPath(destination);
 
@@ -67,7 +67,7 @@ export class Zip {
                     });
                     resolve();
                     temp.clear();
-                  } else if (result === ProgressMonitor.RESULT_ERROR) {
+                  } else if (result === net.lingala.zip4j.progress.ProgressMonitor.RESULT_ERROR) {
                     reject(
                       monitor_1.getException()
                         ? monitor_1.getException().getMessage()
@@ -124,14 +124,14 @@ export class Zip {
         zipFile.extractAll(destination);
         const monitor = zipFile.getProgressMonitor();
         const progressInterval = setInterval(() => {
-          if (monitor.getState() === ProgressMonitor.STATE_BUSY) {
+          if (monitor.getState() === net.lingala.zip4j.progress.ProgressMonitor.STATE_BUSY) {
             if (progressCallback) progressCallback(monitor.getPercentDone());
           } else {
             // Done working
             const result = monitor.getResult();
-            if (result === ProgressMonitor.RESULT_SUCCESS) {
+            if (result === net.lingala.zip4j.progress.ProgressMonitor.RESULT_SUCCESS) {
               resolve();
-            } else if (result === ProgressMonitor.RESULT_ERROR) {
+            } else if (result === net.lingala.zip4j.progress.ProgressMonitor.RESULT_ERROR) {
               reject(
                 monitor.getException()
                   ? monitor.getException().getMessage()
