@@ -5,7 +5,9 @@ debug(`ZipWorker.Init`);
 
 (<any>global).onmessage = msg => {
   const request = msg.data;
-  if (request.action === 'unzip') {
+  if(request.action === 'zip') {
+    zipRequest(request);
+  }else if (request.action === 'unzip') {
     unzipRequest(request);
   }
 };
