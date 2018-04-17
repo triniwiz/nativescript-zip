@@ -6,7 +6,15 @@
 
 ## Installation
 
-`tns plugin add nativescript-zip`
+#### NativeScript 4x
+
+* `tns plugin add nativescript-zip`
+
+
+#### NativeScript 2x & 3x
+
+* `tns plugin add nativescript-zip@2.0.4`
+
 
 ## Usage
 
