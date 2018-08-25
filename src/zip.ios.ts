@@ -1,7 +1,4 @@
 import * as fs from 'tns-core-modules/file-system';
-
-declare var SSZipArchive: any;
-
 export class Zip {
     public static zip(folder, destination, keepParent, password) {
         return this.zipWithProgress(

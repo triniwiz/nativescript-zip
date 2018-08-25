@@ -1,6 +1,5 @@
 let lastProgressPercent;
 let debugEnabled = true;
-
 debug(`ZipWorker.Init`);
 
 (<any>global).onmessage = msg => {
