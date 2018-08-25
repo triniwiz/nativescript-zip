@@ -18,7 +18,13 @@ debug(`ZipWorker.Init`);
     close();
 };
 
-function unzipRequest(request: ZipRequest) {
+function unzipRequest(request: {
+    action: string;
+    archive: string;
+    destination: string;
+    overwrite: boolean;
+    password: string;
+}) {
     const archivePath = request.archive;
     const destinationPath = request.destination;
     const overwrite = request.overwrite || true;
