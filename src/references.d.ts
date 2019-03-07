@@ -5,6 +5,3 @@
 /// <reference path="./typings/tns-worker.d.ts" />
 /// <reference path="./typings/zip-request.d.ts" />
 /// <reference path="./typings/zip4j.d.ts" />
-
-// @ts-ignore
-declare var SSZipArchive: any;

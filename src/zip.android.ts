@@ -123,8 +123,31 @@ export class Zip {
                 if (zipFile.isEncrypted() && password) {
                     zipFile.setPassword(password);
                 }
-                zipFile.extractAll(destination);
+
+
+                const d = new java.io.File(destination);
+
+                if (!d.exists()) {
+                    d.mkdirs();
+                }
+
+                let fileHeaders = zipFile.getFileHeaders();
+                if (fileHeaders) {
+                    const length = fileHeaders.size();
+                    for (let i = 0; i < length; i++) {
+                        const header = fileHeaders.get(i);
+                        if (header.isDirectory()) {
+                            if (d.exists()) {
+                                const f = new java.io.File(destination, header.getFileName());
+                                f.mkdirs();
+                                zipFile.extractFile(header, f.toString());
+                            }
+                        }
+                    }
+                }
+
                 const monitor = zipFile.getProgressMonitor();
+                zipFile.extractAll(destination);
                 const progressInterval = setInterval(() => {
                     if (monitor.getState() === net.lingala.zip4j.progress.ProgressMonitor.STATE_BUSY) {
                         if (progressCallback) progressCallback(monitor.getPercentDone());
