@@ -22,7 +22,7 @@
 
 ```ts
 import { Zip } from "nativescript-zip";
-import * fs from "file-system";
+import * as fs from "file-system";
 let path = fs.path.join(fs.knownFolders.temp().path, "stuff");
 let dest = fs.path.join(fs.knownFolders.currentApp().path, "/assets");
 Zip.zip(path,dest);
@@ -32,7 +32,7 @@ Zip.zip(path,dest);
 
 ```ts
 import { Zip } from "nativescript-zip";
-import * fs from "file-system";
+import * as fs from "file-system";
 let path = fs.path.join(fs.knownFolders.temp().path, "stuff");
 let dest = fs.path.join(fs.knownFolders.currentApp().path, "/assets");
 Zip.zipWithProgress(path,dest,onZipProgress);
@@ -46,7 +46,7 @@ function onZipProgress(percent: number) {
 
 ```ts
 import { Zip } from "nativescript-zip";
-import * fs from "file-system";
+import * as fs from "file-system";
 let zipPath = fs.path.join(fs.knownFolders.temp().path, "stuff.zip");
 let dest = fs.path.join(fs.knownFolders.currentApp().path, "/assets");
 Zip.unzip(zipPath,dest);
@@ -56,7 +56,7 @@ Zip.unzip(zipPath,dest);
 
 ```ts
 import { Zip } from "nativescript-zip";
-import * fs from "file-system";
+import * as fs from "file-system";
 let zipPath = fs.path.join(fs.knownFolders.temp().path, "stuff.zip");
 let dest = fs.path.join(fs.knownFolders.currentApp().path, "/assets");
 Zip.unzipWithProgress(zipPath,dest,onZipProgress);
