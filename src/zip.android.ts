@@ -42,6 +42,10 @@ export class Zip {
                             const zipFile = new net.lingala.zip4j.core.ZipFile(
                                 tempDestinationPath
                             );
+                            zipFile.setRunInThread(true);
+                            if (password) {
+                                zipFile.setPassword(password);
+                            }
                             const parameters = new net.lingala.zip4j.model.ZipParameters();
                             parameters.setCompressionMethod(
                                 net.lingala.zip4j.util.Zip4jConstants.COMP_DEFLATE
@@ -88,6 +92,10 @@ export class Zip {
                     );
                 } else {
                     const zipFile = new net.lingala.zip4j.core.ZipFile(destination);
+                    zipFile.setRunInThread(true);
+                    if (password) {
+                        zipFile.setPassword(password);
+                    }
                     const parameters = new net.lingala.zip4j.model.ZipParameters();
                     parameters.setCompressionMethod(
                         net.lingala.zip4j.util.Zip4jConstants.COMP_DEFLATE
@@ -96,7 +104,27 @@ export class Zip {
                         net.lingala.zip4j.util.Zip4jConstants.DEFLATE_LEVEL_NORMAL
                     );
                     zipFile.createZipFileFromFolder(folder, parameters, false, 0);
-                    resolve();
+                    const monitor_1 = zipFile.getProgressMonitor();
+                    const progressInterval_1 = setInterval(function () {
+                        if (monitor_1.getState() === net.lingala.zip4j.progress.ProgressMonitor.STATE_BUSY) {
+                            if (progressCallback)
+                                progressCallback(monitor_1.getPercentDone());
+                        } else {
+                            const result = monitor_1.getResult();
+                            if (result === net.lingala.zip4j.progress.ProgressMonitor.RESULT_SUCCESS) {
+                                resolve();
+                            } else if (result === net.lingala.zip4j.progress.ProgressMonitor.RESULT_ERROR) {
+                                reject(
+                                    monitor_1.getException()
+                                        ? monitor_1.getException().getMessage()
+                                        : 'error'
+                                );
+                            } else {
+                                reject('cancelled');
+                            }
+                            clearInterval(progressInterval_1);
+                        }
+                    }, Zip.ProgressUpdateRate);
                 }
             } catch (ex) {
                 reject(ex);
