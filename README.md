@@ -20,22 +20,29 @@
 
 ### Zip
 
-```ts
+```typescript
 import { Zip } from "nativescript-zip";
-import * as fs from "file-system";
+import * as fs from "tns-core-modules/file-system";
 let path = fs.path.join(fs.knownFolders.temp().path, "stuff");
-let dest = fs.path.join(fs.knownFolders.currentApp().path, "/assets");
-Zip.zip(path,dest);
+let dest = fs.path.join(fs.knownFolders.documents().path, "/assets");
+Zip.zip({
+    folder: path,
+    destination: dest
+});
 ```
 
 #### Progress
 
-```ts
+```typescript
 import { Zip } from "nativescript-zip";
-import * as fs from "file-system";
+import * as fs from "tns-core-modules/file-system";
 let path = fs.path.join(fs.knownFolders.temp().path, "stuff");
-let dest = fs.path.join(fs.knownFolders.currentApp().path, "/assets");
-Zip.zipWithProgress(path,dest,onZipProgress);
+let dest = fs.path.join(fs.knownFolders.documents().path, "/assets");
+Zip.zip({
+    folder: path,
+    destination: dest,
+    onProgress: onZipProgress
+});
 
 function onZipProgress(percent: number) {
     console.log(`unzip progress: ${percent}`);
@@ -44,24 +51,31 @@ function onZipProgress(percent: number) {
 
 ### Unzip
 
-```ts
+```typescript
 import { Zip } from "nativescript-zip";
-import * as fs from "file-system";
+import * as fs from "tns-core-modules/file-system";
 let zipPath = fs.path.join(fs.knownFolders.temp().path, "stuff.zip");
-let dest = fs.path.join(fs.knownFolders.currentApp().path, "/assets");
-Zip.unzip(zipPath,dest);
+let dest = fs.path.join(fs.knownFolders.documents().path, "/assets");
+Zip.unzip({
+    archive: zipPath,
+    destination: dest
+});
 ```
 
 #### Progress
 
-```ts
+```typescript
 import { Zip } from "nativescript-zip";
-import * as fs from "file-system";
+import * as fs from "tns-core-modules/file-system";
 let zipPath = fs.path.join(fs.knownFolders.temp().path, "stuff.zip");
-let dest = fs.path.join(fs.knownFolders.currentApp().path, "/assets");
-Zip.unzipWithProgress(zipPath,dest,onZipProgress);
+let dest = fs.path.join(fs.knownFolders.documennts().path, "/assets");
+Zip.unzip({
+    archive: zipPath,
+    destination: dest,
+    onProgress: onUnZipProgress
+});
 
-function onZipProgress(percent: number) {
+function onUnZipProgress(percent: number) {
     console.log(`unzip progress: ${percent}`);
 }
 ```
