@@ -1,190 +1,65 @@
 import * as fs from 'tns-core-modules/file-system';
+import * as types from 'tns-core-modules/utils/types';
+import { UnZipOptions, ZipOptions } from './common';
 
-// zip4j docs:
-// http://javadox.com/net.lingala.zip4j/zip4j/1.3.1/net/lingala/zip4j
-// progress example:
-// http://www.lingala.net/zip4j/forum/index.php?topic=68.0
-
-declare const net;
+export { UnZipOptions, ZipOptions } from './common';
 
 export class Zip {
+    static debugEnabled = false;
+
     public static ProgressUpdateRate = 100;
 
-    public static zip(folder, destination, keepParent, password) {
-        return this.zipWithProgress(
-            folder,
-            destination,
-            () => {
-            },
-            keepParent,
-            password
-        );
-    }
 
-    public static zipWithProgress(
-        folder,
-        destination,
-        progressCallback,
-        keepParent = true,
-        password?: boolean
-    ): Promise<any> {
-        return new Promise(function (resolve, reject) {
-            if (!fs.Folder.exists(folder)) {
-                return reject('Folder does not exist, invalid folder path: ' + folder);
-            }
-            try {
-                if (fs.File.exists(destination)) {
-                    const f = fs.File.fromPath(destination);
-                    f.remove().then(
-                        function (result) {
-                            const temp = fs.knownFolders.temp();
-                            const tempDestinationPath = fs.path.join(temp.path, 'archive.zip');
-                            const zipFile = new net.lingala.zip4j.core.ZipFile(
-                                tempDestinationPath
-                            );
-                            zipFile.setRunInThread(true);
-                            if (password) {
-                                zipFile.setPassword(password);
-                            }
-                            const parameters = new net.lingala.zip4j.model.ZipParameters();
-                            parameters.setCompressionMethod(
-                                net.lingala.zip4j.util.Zip4jConstants.COMP_DEFLATE
-                            );
-                            parameters.setCompressionLevel(
-                                net.lingala.zip4j.util.Zip4jConstants.DEFLATE_LEVEL_NORMAL
-                            );
-                            zipFile.createZipFileFromFolder(folder, parameters, false, 0);
-                            const monitor_1 = zipFile.getProgressMonitor();
-                            const progressInterval_1 = setInterval(function () {
-                                if (monitor_1.getState() === net.lingala.zip4j.progress.ProgressMonitor.STATE_BUSY) {
-                                    if (progressCallback)
-                                        progressCallback(monitor_1.getPercentDone());
-                                } else {
-                                    const result = monitor_1.getResult();
-                                    if (result === net.lingala.zip4j.progress.ProgressMonitor.RESULT_SUCCESS) {
-                                        const sourceFile = fs.File.fromPath(tempDestinationPath);
-                                        const destinationFile = fs.File.fromPath(destination);
-
-                                        const source = sourceFile.readSync(function (error) {
-                                            reject('error');
-                                        });
-                                        destinationFile.writeSync(source, function (error) {
-                                            reject('error');
-                                        });
-                                        resolve();
-                                        temp.clear();
-                                    } else if (result === net.lingala.zip4j.progress.ProgressMonitor.RESULT_ERROR) {
-                                        reject(
-                                            monitor_1.getException()
-                                                ? monitor_1.getException().getMessage()
-                                                : 'error'
-                                        );
-                                    } else {
-                                        reject('cancelled');
-                                    }
-                                    clearInterval(progressInterval_1);
-                                }
-                            }, Zip.ProgressUpdateRate);
-                        },
-                        function (error) {
-                            reject(error);
-                        }
-                    );
-                } else {
-                    const zipFile = new net.lingala.zip4j.core.ZipFile(destination);
-                    zipFile.setRunInThread(true);
-                    if (password) {
-                        zipFile.setPassword(password);
-                    }
-                    const parameters = new net.lingala.zip4j.model.ZipParameters();
-                    parameters.setCompressionMethod(
-                        net.lingala.zip4j.util.Zip4jConstants.COMP_DEFLATE
-                    );
-                    parameters.setCompressionLevel(
-                        net.lingala.zip4j.util.Zip4jConstants.DEFLATE_LEVEL_NORMAL
-                    );
-                    zipFile.createZipFileFromFolder(folder, parameters, false, 0);
-                    const monitor_1 = zipFile.getProgressMonitor();
-                    const progressInterval_1 = setInterval(function () {
-                        if (monitor_1.getState() === net.lingala.zip4j.progress.ProgressMonitor.STATE_BUSY) {
-                            if (progressCallback)
-                                progressCallback(monitor_1.getPercentDone());
-                        } else {
-                            const result = monitor_1.getResult();
-                            if (result === net.lingala.zip4j.progress.ProgressMonitor.RESULT_SUCCESS) {
-                                resolve();
-                            } else if (result === net.lingala.zip4j.progress.ProgressMonitor.RESULT_ERROR) {
-                                reject(
-                                    monitor_1.getException()
-                                        ? monitor_1.getException().getMessage()
-                                        : 'error'
-                                );
-                            } else {
-                                reject('cancelled');
-                            }
-                            clearInterval(progressInterval_1);
-                        }
-                    }, Zip.ProgressUpdateRate);
-                }
-            } catch (ex) {
-                reject(ex);
-            }
-        });
-    }
-
-    public static unzipWithProgress(
-        archive: string,
-        destination: string,
-        progressCallback: (progressPercent) => void,
-        overwrite?: boolean,
-        password?: string
-    ): Promise<any> {
-        if (!fs.File.exists(archive)) {
-            return Promise.reject(
-                `File does not exist, invalid archive path: ${archive}`
-            );
+    private static debug(arg) {
+        if (this.debugEnabled && console && console.log) {
+            console.log(arg);
         }
+    }
+
+    public static zip(options: ZipOptions): Promise<string> {
         return new Promise((resolve, reject) => {
+            if (!fs.Folder.exists(options?.directory)) {
+                return reject('Directory does not exist, invalid directory path: ' + options?.directory);
+            }
             try {
-                const zipFile = new net.lingala.zip4j.core.ZipFile(archive);
+                const archive = options?.archive ?? fs.path.join(fs.knownFolders.temp().path, `${java.util.UUID.randomUUID().toString()}_archive.zip`);
+                this.debug(
+                    'Zip.zip - folder=' +
+                    options?.directory +
+                    '\n' +
+                    'Zip.zip - destinationPath=' +
+                    archive
+                );
+
+                const zipFile = new net.lingala.zip4j.ZipFile(new java.io.File(archive));
                 zipFile.setRunInThread(true);
-                if (zipFile.isEncrypted() && password) {
-                    zipFile.setPassword(password);
+                const parameters = new net.lingala.zip4j.model.ZipParameters();
+                if (types.isString(options?.password)) {
+                    parameters.setEncryptionMethod(net.lingala.zip4j.model.enums.EncryptionMethod.AES);
+                    zipFile.setPassword((java.lang.String.valueOf(options?.password) as any).toCharArray());
                 }
-
-
-                const d = new java.io.File(destination);
-
-                if (!d.exists()) {
-                    d.mkdirs();
-                }
-
-                let fileHeaders = zipFile.getFileHeaders();
-                if (fileHeaders) {
-                    const length = fileHeaders.size();
-                    for (let i = 0; i < length; i++) {
-                        const header = fileHeaders.get(i);
-                        if (header.isDirectory()) {
-                            if (d.exists()) {
-                                const f = new java.io.File(destination, header.getFileName());
-                                f.mkdirs();
-                                zipFile.extractFile(header, f.toString());
-                            }
-                        }
-                    }
-                }
-
+                parameters.setCompressionMethod(
+                    net.lingala.zip4j.model.enums.CompressionMethod.DEFLATE
+                );
+                parameters.setCompressionLevel(
+                    net.lingala.zip4j.model.enums.CompressionLevel.NORMAL
+                );
+                parameters.setIncludeRootFolder(options?.keepParent ?? true);
                 const monitor = zipFile.getProgressMonitor();
-                zipFile.extractAll(destination);
-                const progressInterval = setInterval(() => {
-                    if (monitor.getState() === net.lingala.zip4j.progress.ProgressMonitor.STATE_BUSY) {
-                        if (progressCallback) progressCallback(monitor.getPercentDone());
+                zipFile.addFolder(new java.io.File(options?.directory), parameters);
+                const progressInterval = setInterval(function () {
+                    if (monitor.getState() === net.lingala.zip4j.progress.ProgressMonitor.State.BUSY) {
+                        if (typeof options?.onProgress === 'function') {
+                            options?.onProgress(monitor.getPercentDone());
+                        }
                     } else {
-                        // Done working
                         const result = monitor.getResult();
-                        if (result === net.lingala.zip4j.progress.ProgressMonitor.RESULT_SUCCESS) {
-                            resolve();
-                        } else if (result === net.lingala.zip4j.progress.ProgressMonitor.RESULT_ERROR) {
+                        if (result === net.lingala.zip4j.progress.ProgressMonitor.Result.SUCCESS) {
+                            if (typeof options?.onProgress === 'function') {
+                                options?.onProgress(monitor.getPercentDone());
+                            }
+                            resolve(archive);
+                        } else if (result === net.lingala.zip4j.progress.ProgressMonitor.Result.ERROR) {
                             reject(
                                 monitor.getException()
                                     ? monitor.getException().getMessage()
@@ -202,19 +77,60 @@ export class Zip {
         });
     }
 
-    public static unzip(
-        archive: string,
-        destination: string,
-        overwrite?: boolean,
-        password?: string
-    ): Promise<any> {
-        return this.unzipWithProgress(
-            archive,
-            destination,
-            () => {
-            },
-            overwrite,
-            password
-        );
+    public static unzip(options: UnZipOptions): Promise<any> {
+        if (!options?.archive || !fs.File.exists(options?.archive)) {
+            return Promise.reject(
+                `File does not exist, invalid archive path: ${options?.archive}`
+            );
+        }
+        return new Promise((resolve, reject) => {
+            try {
+                this.debug(`Zip.unzip - archive=${options?.archive}`);
+                const zipFile = new net.lingala.zip4j.ZipFile(options?.archive);
+                zipFile.setRunInThread(true);
+                if (zipFile.isEncrypted() && types.isString(options?.password)) {
+                    zipFile.setPassword((java.lang.String.valueOf(options?.password) as any).toCharArray());
+                }
+                const tempDir = fs.path.join(fs.knownFolders.temp().path, java.util.UUID.randomUUID().toString());
+                const directory = options?.directory ?? tempDir;
+                const d = new java.io.File(directory);
+
+                if (!d.exists()) {
+                    d.mkdirs();
+                }
+
+                const monitor = zipFile.getProgressMonitor();
+                zipFile.extractAll(directory);
+                const progressInterval = setInterval(() => {
+                    const state = monitor.getState();
+                    if (state === net.lingala.zip4j.progress.ProgressMonitor.State.BUSY) {
+                        if (typeof options?.onProgress === 'function') {
+                            options?.onProgress(monitor.getPercentDone());
+                        }
+                    } else {
+                        // Done working
+                        const result = monitor.getResult();
+                        if (result === net.lingala.zip4j.progress.ProgressMonitor.Result.SUCCESS) {
+                            if (typeof options?.onProgress === 'function') {
+                                options?.onProgress(monitor.getPercentDone());
+                            }
+                            resolve(directory);
+                        } else if (result === net.lingala.zip4j.progress.ProgressMonitor.Result.ERROR) {
+                            reject(
+                                monitor.getException()
+                                    ? monitor.getException().getMessage()
+                                    : 'error'
+                            );
+                        } else {
+                            reject('cancelled');
+                        }
+                        clearInterval(progressInterval);
+                    }
+                }, Zip.ProgressUpdateRate);
+            } catch (ex) {
+                reject(ex);
+            }
+        });
     }
+
 }

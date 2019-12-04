@@ -15,9 +15,9 @@ declare class SSZipArchive extends NSObject {
 
 	static createZipFileAtPathWithContentsOfDirectoryWithPassword(path: string, directoryPath: string, password: string): boolean;
 
-	static createZipFileAtPathWithFilesAtPaths(path: string, paths: NSArray<string>): boolean;
+	static createZipFileAtPathWithFilesAtPaths(path: string, paths: NSArray<string> | string[]): boolean;
 
-	static createZipFileAtPathWithFilesAtPathsWithPassword(path: string, paths: NSArray<string>, password: string): boolean;
+	static createZipFileAtPathWithFilesAtPathsWithPassword(path: string, paths: NSArray<string> | string[], password: string): boolean;
 
 	static isFilePasswordProtectedAtPath(path: string): boolean;
 

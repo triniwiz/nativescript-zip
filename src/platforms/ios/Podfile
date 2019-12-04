@@ -1,1 +1,1 @@
-pod 'SSZipArchive'
+pod 'SSZipArchive', '~> 2.2'
