@@ -50,7 +50,7 @@ matrix:
       jdk: oraclejdk8
       before_install: nvm install 12
       before_script:
-          - echo no | android create avd --force -n test -g google_apis -b x86 -k 'system-images;android-28;google_apis;x86'
+          - echo no | android create avd --force -n test -t android-28 -b x86
           - emulator -avd test -no-audio -no-window &
           - android-wait-for-emulator
       script:
