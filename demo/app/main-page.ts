@@ -29,27 +29,27 @@ export function create() {
         directory: dir(),
         archive: out(),
         onProgress: (progress) => {
-            console.log('create: progress: ' + progress)
+            console.log('create: progress: ' + progress);
         }
     }).then(archive => {
         console.log('create success: ', archive);
     }).catch(error => {
         console.log('create error: ', error);
-    })
+    });
 }
 
 export function extract() {
     Zip.unzip({
         archive: out(),
         onProgress: (progress) => {
-            console.log('extract: progress: ' + progress)
+            console.log('extract: progress: ' + progress);
         }
     }).then(path => {
-        console.log('extract success: ', path)
+        console.log('extract success: ', path);
     })
         .catch(error => {
-            console.log('extract error: ', error)
-        })
+            console.log('extract error: ', error);
+        });
 
 }
 
