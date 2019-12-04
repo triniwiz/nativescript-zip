@@ -18,15 +18,12 @@ export class Zip {
 
     private static _zipRequest(options: ZipOptions): Promise<string> {
         return new Promise((resolve, reject) => {
-
             if (!options?.directory || !fs.Folder.exists(options?.directory)) {
                 return reject('Directory does not exist, invalid directory path: ' + options?.directory);
             }
 
             dispatch_async(background_queue, () => {
-                const temp = fs.knownFolders.temp();
-                const tempDestinationPath = temp.getFile(`${NSUUID.UUID().UUIDString}_archive.zip`);
-                const archive = options?.archive ?? tempDestinationPath.path;
+                const archive = options?.archive ?? fs.path.join(fs.knownFolders.temp().path, `${NSUUID.UUID().UUIDString}_archive.zip`);
                 this.debug(
                     'Zip.zip - folder=' +
                     options?.directory +
@@ -39,9 +36,9 @@ export class Zip {
                 const result = SSZipArchive.createZipFileAtPathWithContentsOfDirectoryKeepParentDirectoryCompressionLevelPasswordAESProgressHandler(
                     archive,
                     options?.directory,
-                    options?.keepParent,
+                    options?.keepParent ?? true,
                     -1,
-                    options?.password,
+                    options?.password ?? null,
                     true,
                     (entryNumber, entriesTotal) => {
                         if (typeof options?.onProgress === 'function' && entriesTotal > 0) {
@@ -95,8 +92,8 @@ export class Zip {
                 const result = SSZipArchive.unzipFileAtPathToDestinationOverwritePasswordErrorDelegate(
                     options?.archive,
                     destination,
-                    options?.overwrite,
-                    options?.password,
+                    options?.overwrite ?? true,
+                    options?.password ?? null,
                     error,
                     listener
                 );
