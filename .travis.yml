@@ -13,6 +13,10 @@ matrix:
       language: node_js
       node_js: "12"
       jdk: oraclejdk8
+      before_install:
+        - pip install --upgrade pip
+        - pip install --user --upgrade matplotlib
+        - pip install six
       before_script: pod repo update
       script: cd demo && npm run build.plugin && npm i && tns build ios --env.uglify
     - language: android
