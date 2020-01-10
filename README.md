@@ -27,7 +27,7 @@ let path = fs.path.join(fs.knownFolders.temp().path, "stuff");
 let dest = fs.path.join(fs.knownFolders.documents().path, "/assets");
 Zip.zip({
     folder: path,
-    destination: dest
+    directory: dest
 });
 ```
 
@@ -40,7 +40,7 @@ let path = fs.path.join(fs.knownFolders.temp().path, "stuff");
 let dest = fs.path.join(fs.knownFolders.documents().path, "/assets");
 Zip.zip({
     folder: path,
-    destination: dest,
+    directory: dest,
     onProgress: onZipProgress
 });
 
@@ -58,7 +58,7 @@ let zipPath = fs.path.join(fs.knownFolders.temp().path, "stuff.zip");
 let dest = fs.path.join(fs.knownFolders.documents().path, "/assets");
 Zip.unzip({
     archive: zipPath,
-    destination: dest
+    directory: dest
 });
 ```
 
@@ -71,7 +71,7 @@ let zipPath = fs.path.join(fs.knownFolders.temp().path, "stuff.zip");
 let dest = fs.path.join(fs.knownFolders.documennts().path, "/assets");
 Zip.unzip({
     archive: zipPath,
-    destination: dest,
+    directory: dest,
     onProgress: onUnZipProgress
 });
 
