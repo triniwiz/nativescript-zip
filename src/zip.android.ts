@@ -1,5 +1,4 @@
-import * as fs from 'tns-core-modules/file-system';
-import * as types from 'tns-core-modules/utils/types';
+import { File, knownFolders, Folder, path, Utils } from '@nativescript/core';
 import { UnZipOptions, ZipOptions } from './common';
 
 export { UnZipOptions, ZipOptions } from './common';
@@ -18,11 +17,11 @@ export class Zip {
 
     public static zip(options: ZipOptions): Promise<string> {
         return new Promise((resolve, reject) => {
-            if (!fs.Folder.exists(options?.directory)) {
+            if (!Folder.exists(options?.directory)) {
                 return reject('Directory does not exist, invalid directory path: ' + options?.directory);
             }
             try {
-                const archive = options?.archive ?? fs.path.join(fs.knownFolders.temp().path, `${java.util.UUID.randomUUID().toString()}_archive.zip`);
+                const archive = options?.archive ?? path.join(knownFolders.temp().path, `${java.util.UUID.randomUUID().toString()}_archive.zip`);
                 this.debug(
                     'Zip.zip - folder=' +
                     options?.directory +
@@ -34,7 +33,7 @@ export class Zip {
                 const zipFile = new net.lingala.zip4j.ZipFile(new java.io.File(archive));
                 zipFile.setRunInThread(true);
                 const parameters = new net.lingala.zip4j.model.ZipParameters();
-                if (types.isString(options?.password)) {
+                if (Utils.isString(options?.password)) {
                     parameters.setEncryptionMethod(net.lingala.zip4j.model.enums.EncryptionMethod.AES);
                     zipFile.setPassword((java.lang.String.valueOf(options?.password) as any).toCharArray());
                 }
@@ -78,7 +77,7 @@ export class Zip {
     }
 
     public static unzip(options: UnZipOptions): Promise<any> {
-        if (!options?.archive || !fs.File.exists(options?.archive)) {
+        if (!options?.archive || !File.exists(options?.archive)) {
             return Promise.reject(
                 `File does not exist, invalid archive path: ${options?.archive}`
             );
@@ -88,10 +87,10 @@ export class Zip {
                 this.debug(`Zip.unzip - archive=${options?.archive}`);
                 const zipFile = new net.lingala.zip4j.ZipFile(options?.archive);
                 zipFile.setRunInThread(true);
-                if (zipFile.isEncrypted() && types.isString(options?.password)) {
+                if (zipFile.isEncrypted() && Utils.isString(options?.password)) {
                     zipFile.setPassword((java.lang.String.valueOf(options?.password) as any).toCharArray());
                 }
-                const tempDir = fs.path.join(fs.knownFolders.temp().path, java.util.UUID.randomUUID().toString());
+                const tempDir = path.join(knownFolders.temp().path, java.util.UUID.randomUUID().toString());
                 const directory = options?.directory ?? tempDir;
                 const d = new java.io.File(directory);
 
