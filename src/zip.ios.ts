@@ -1,4 +1,4 @@
-import * as fs from 'tns-core-modules/file-system';
+import { Folder, path, knownFolders, File } from '@nativescript/core';
 import { UnZipOptions, ZipOptions } from './common';
 
 const background_queue = dispatch_get_global_queue(qos_class_t.QOS_CLASS_DEFAULT, 0);
@@ -18,12 +18,12 @@ export class Zip {
 
     private static _zipRequest(options: ZipOptions): Promise<string> {
         return new Promise((resolve, reject) => {
-            if (!options?.directory || !fs.Folder.exists(options?.directory)) {
+            if (!options?.directory || !Folder.exists(options?.directory)) {
                 return reject('Directory does not exist, invalid directory path: ' + options?.directory);
             }
 
             dispatch_async(background_queue, () => {
-                const archive = options?.archive ?? fs.path.join(fs.knownFolders.temp().path, `${NSUUID.UUID().UUIDString}_archive.zip`);
+                const archive = options?.archive ?? path.join(knownFolders.temp().path, `${NSUUID.UUID().UUIDString}_archive.zip`);
                 this.debug(
                     'Zip.zip - folder=' +
                     options?.directory +
@@ -66,10 +66,10 @@ export class Zip {
 
     private static _unzipRequest(options: UnZipOptions): Promise<string> {
         return new Promise((resolve, reject) => {
-            if (!fs.File.exists(options?.archive)) {
+            if (!File.exists(options?.archive)) {
                 return reject(`File does not exist, invalid archive path: ${options?.archive}`);
             }
-            const destination = options?.directory ?? fs.path.join(fs.knownFolders.temp().path, NSUUID.UUID().UUIDString);
+            const destination = options?.directory ?? path.join(knownFolders.temp().path, NSUUID.UUID().UUIDString);
             dispatch_async(background_queue, () => {
                 this.debug(`Zip.unzip - archive=${options?.archive}`);
                 let lastProgressPercent = 0;
